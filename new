@@ -474,7 +474,7 @@ end)
 
 
 island:AddButton("Militar", function()
-	game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-195.30, 224.99, 512.53))
+	game.Players.LocalPlayer.Character:MoveTo(Vector3.new(565.3211669921875, 26.67538070678711, -1497.53369140625))
 end)
 
 island:AddButton("Cafe", function()
