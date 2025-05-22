@@ -1,0 +1,61 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local localPlayer = Players.LocalPlayer
+local function getChar()
+    local char = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
+local myHRP = getChar()
+local radius = 15
+local height = 0
+
+-- Elimina anteriores
+if workspace:FindFirstChild("FakeCircleHitboxes") then
+    workspace.FakeCircleHitboxes:Destroy()
+end
+local folder = Instance.new("Folder", workspace)
+folder.Name = "FakeCircleHitboxes"
+
+-- Obtener otros jugadores
+local clones = {}
+local others = {}
+for _, plr in pairs(Players:GetPlayers()) do
+    if plr ~= localPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+        table.insert(others, plr)
+    end
+end
+
+-- Crear marcadores visuales (opcional)
+for i, plr in ipairs(others) do
+    local marker = Instance.new("Part")
+    marker.Size = Vector3.new(2, 2, 1)
+    marker.Anchored = true
+    marker.CanCollide = false
+    marker.BrickColor = BrickColor.Red()
+    marker.Transparency = 0.7
+    marker.Name = "Marker_" .. plr.Name
+    marker.Parent = folder
+
+    clones[plr] = { marker = marker, index = i, total = #others }
+end
+
+-- Sincronizar hitboxes reales
+RunService.RenderStepped:Connect(function()
+    local basePos = myHRP.Position
+
+    for plr, data in pairs(clones) do
+        local angle = (2 * math.pi) * (data.index / data.total)
+        local pos = basePos + Vector3.new(math.cos(angle) * radius, height, math.sin(angle) * radius)
+
+        -- Mueve el marcador (opcional visual)
+        data.marker.Position = pos
+
+        -- Mueve el verdadero HRP (hitbox real)
+        if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = plr.Character.HumanoidRootPart
+            hrp.CFrame = CFrame.new(pos)
+        end
+    end
+end)
